@@ -1,3 +1,5 @@
+import DescriptionForm from "@/components/dashborad/course/DescriptionForm";
+import TitleForm from "@/components/dashborad/course/TitleForm";
 import IconBadge from "@/components/shared/IconBadge";
 import { db } from "@/lib/database";
 import { auth } from "@clerk/nextjs";
@@ -43,6 +45,9 @@ const page = async ({ params }: { params: { courseId: string } }) => {
             <IconBadge icon={LayoutDashboard} />
             <h2 className="text-xl">Customize your course</h2>
           </div>
+
+          <TitleForm initialData={course} courseId={course.id} />
+          <DescriptionForm initialData={course} courseId={course.id} />
         </div>
       </div>
     </div>
