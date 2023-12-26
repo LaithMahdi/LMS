@@ -1,5 +1,6 @@
 import AttachmentForm from "@/components/dashborad/course/AttachmentForm";
 import CategoryForm from "@/components/dashborad/course/CategoryForm";
+import ChaptersForm from "@/components/dashborad/course/ChaptersForm";
 import DescriptionForm from "@/components/dashborad/course/DescriptionForm";
 import ImageForm from "@/components/dashborad/course/ImageForm";
 import PriceForm from "@/components/dashborad/course/PriceForm";
@@ -20,10 +21,13 @@ const page = async ({ params }: { params: { courseId: string } }) => {
 
   if (!userId) return redirect("/");
   const course = await db.course.findUnique({
-    where: { id: params.courseId },
+    where: { id: params.courseId, userId },
     include: {
       attachment: {
         orderBy: { createdAt: "desc" },
+      },
+      chapters: {
+        orderBy: { position: "asc" },
       },
     },
   });
@@ -41,6 +45,7 @@ const page = async ({ params }: { params: { courseId: string } }) => {
     course.imageUrl,
     course.price,
     course.categoryId,
+    course.chapters.some((chapter) => chapter.isPublished),
   ];
 
   const totalFields = requiredFields.length;
@@ -84,7 +89,7 @@ const page = async ({ params }: { params: { courseId: string } }) => {
               <IconBadge icon={ListChecks} />
               <h2 className="text-xl">Course chapters</h2>
             </div>
-            <div>TODO: chapters</div>
+            <ChaptersForm initialData={course} courseId={course.id} />
           </div>
 
           <div>
