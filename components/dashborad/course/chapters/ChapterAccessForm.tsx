@@ -1,5 +1,5 @@
 "use client";
-import { Course } from "@prisma/client";
+import { Chapter } from "@prisma/client";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -17,32 +18,40 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
+import Editor from "@/components/shared/Editor";
+import Preview from "@/components/shared/Preview";
+import { Checkbox } from "@/components/ui/checkbox";
 
-interface DescriptionFormProps {
-  initialData: Course;
+interface ChapterAccessFormProps {
+  initialData: Chapter;
   courseId: string;
+  chapterId: string;
 }
 
 const formSchema = z.object({
-  description: z.string().min(2, {
-    message: "Description must be at least 2 characters.",
-  }),
+  isFree: z.boolean().default(false),
 });
 
-const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
+const ChapterAccessForm = ({
+  initialData,
+  courseId,
+  chapterId,
+}: ChapterAccessFormProps) => {
   const [isEditing, setIsEditing] = useState<Boolean>(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      description: initialData?.description || "",
+      isFree: Boolean(initialData?.isFree),
     },
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await axios.patch(`/api/courses/${courseId}`, values);
-      toast.success("Course updated successfully");
+      await axios.patch(
+        `/api/courses/${courseId}/chapters/${chapterId}`,
+        values
+      );
+      toast.success("Chapter updated successfully");
       toggleEdit();
       router.refresh();
     } catch (error) {
@@ -57,14 +66,14 @@ const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
   return (
     <div className="mt-6 border bg-slate-100 rounded p-4">
       <div className="font-medium flex items-center justify-between">
-        Course description{" "}
+        Chapter access
         <Button variant="ghost" onClick={toggleEdit}>
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="size-4 mr-2" />
-              Edit description
+              Edit access
             </>
           )}
         </Button>
@@ -78,18 +87,20 @@ const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
           >
             <FormField
               control={form.control}
-              name="description"
+              name="isFree"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
-                    <Textarea
-                      placeholder="e.g. 'This course is about..."
-                      {...field}
-                      disabled={isSubmitting}
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
-
-                  <FormMessage />
+                  <div className="space-y-1 leading-none">
+                    <FormDescription>
+                      Check this box if you went this chapter free for preview
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
@@ -104,14 +115,18 @@ const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
         <p
           className={cn(
             "text-sm mt-2",
-            !initialData.description && "text-slate-500 italic"
+            !initialData.isFree && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "No description"}
+          {initialData.isFree ? (
+            <>This chapter is free for preview.</>
+          ) : (
+            <>This chapter is not free.</>
+          )}
         </p>
       )}
     </div>
   );
 };
 
-export default DescriptionForm;
+export default ChapterAccessForm;

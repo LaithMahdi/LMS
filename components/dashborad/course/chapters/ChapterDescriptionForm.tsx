@@ -98,7 +98,7 @@ const ChapterDescriptionForm = ({
             />
             <div className="flex items-center gap-x-2">
               <Button type="submit" disabled={!isValid || isSubmitting}>
-                Submit
+                Save
               </Button>
             </div>
           </form>
