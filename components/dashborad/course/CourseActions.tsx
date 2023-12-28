@@ -28,8 +28,8 @@ const CourseActions = ({
       setisLoading(true);
       await axios.delete(`/api/courses/${courseId}`);
       toast.success("Course deleted successfully");
-      router.refresh();
       router.push(`/teacher/courses`);
+      router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
