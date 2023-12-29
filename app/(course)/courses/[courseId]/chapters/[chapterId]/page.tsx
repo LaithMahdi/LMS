@@ -1,4 +1,6 @@
 import getChapter from "@/actions/get-chapter";
+import CourseProgressButton from "@/components/dashborad/course/course/CourseProgressButton";
+
 import CourseEnrollButton from "@/components/dashborad/course/course/chapter/CourseEnrollButton";
 import VideoPlayer from "@/components/dashborad/course/course/chapter/VideoPlayer";
 import Banner from "@/components/shared/Banner";
@@ -65,7 +67,12 @@ const page = async ({
           <div className="p-4 flex flex-col md:flex-row items-center justify-between">
             <h2 className="text-2xl font-semibold mb-2">{chapter.title}</h2>
             {purchase ? (
-              <div></div>
+              <CourseProgressButton
+                chapterId={params.chapterId}
+                courseId={params.courseId}
+                nextChapterId={nextChapter?.id}
+                isCompleted={!!userProgress?.isCompleted}
+              />
             ) : (
               <CourseEnrollButton
                 courseId={params.courseId}
